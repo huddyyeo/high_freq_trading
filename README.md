@@ -18,8 +18,9 @@ It consists of the following columns:
        'CalendarDate', 'Category', 'InternalTime', 'TradingDate',
        'BidWAvgPrice', 'AskWAvgPrice']
 
-In the first step, we calculate the smart price and future smart price of every row. The smart price consists of (BidPrice1*AskVol1 + AskPrice1*BidVol1)/(AskVol1+BidVol1) and future smart price refers to the smart price 30 seconds from the current price. 
-The simple moving average is then calculated of the smart price. Since the data is extremely large(>1gb), an efficient way to calculate SMA is necessary. 
+In the first step, we calculate the smart price and future smart price of every row. The smart price consists of (BidPrice1 x AskVol1 + AskPrice1 x BidVol1)/(AskVol1+BidVol1) and future smart price refers to the smart price 30 seconds from the current price. Edge is then calculated (future smart price - current smart price)
+The simple moving average is then calculated of the current smart price. Since the data is extremely large(>1gb), an efficient way to calculate SMA is necessary. 
+
 ```
 def calc_sma_fast(dataset,duration=1):
     data=dataset[:]
@@ -44,7 +45,12 @@ def calc_sma_fast(dataset,duration=1):
 This method returns in 0.05s for 5000 rows, the fastest out of several methods I have tested.
 The added column is (smart_price-SMA). The function is then run for 1,5,15,30 minute moving averages.
 
-We then (linearly) regress this value against future smart price for a 5 day rolling window. We also run regressions against all 4 moving average times.
+We then (linearly) regress this value against edge for a 5 day rolling window. We also run regressions against all 4 moving average times. One such result can be found at:
+https://github.com/huddyyeo/high_freq_trading/blob/master/result_5day_15minute_ma.csv
+We interpret the data as, for the 5 day period ending in 2019.01.08, the regression of edge against against (smart price - SMA) returns a slope of 0.0157977748172754 and p-value of the coefficient of 2.0954766362309706e-93.
+Note that the p-values are all extremely small due to the sheer size of the dataset. The slope is also inconsistent, flipping between positive and negative, meaning we cannot consistently tell how being on either side of the SMA affects the edge and future price.
+
+Next step, we split the (smartprice-SMA) into positive and negative and identify each category's Q1,Q2,Q3 and Q4 over a 20 day rolling window. We then run regressions on these 8 categories to identify the trends. We would expect mean reversion to occur in the extreme quartiles. To be continued.
 
 
 
