@@ -2,7 +2,7 @@
 
 In this project, I analyse high frequency trading data. I am grateful for all the help I have received from everyon who has taught and guided me on this subject.
 
-High frequency trading refers to trading in short time periods and using algorithmic strategies to capture alpha. Unfortunately these alphas decay extremely quickly due to overcrowding and seeking new methods of capturing trends is always necessary. 
+High frequency trading refers to trading in short time periods and using algorithmic strategies to capture alpha. Unfortunately, these alphas decay extremely quickly due to overcrowding and seeking new methods of capturing trends is always necessary. 
 
 The data I have used is unfortunately private and confidential and cannot be uploaded onto this platform.
 It consists of the following columns:
@@ -52,7 +52,7 @@ Note that the p-values are all extremely small due to the sheer size of the data
 
 Now, I hypothesize that large values of (price-SMA) lead to mean reversion, while small values just indicate momentum. 
 
-Next step, we split the (smartprice-SMA) into positive and negative. Within positive and negative, identify each category's Q1,Q2,Q3 and Q4 over a 20 day rolling window. The categories are defined as such:
+Next step, we split the (smartprice-SMA) into positive and negative values. Within positive and negative, identify each category's Q1,Q2,Q3 and Q4 over a 20 day rolling window. The categories are defined as such:
 
 Category:
 1: negative 0-25%
@@ -108,6 +108,8 @@ Next, we analyse this result and come to the following conclusion.
 
 We see somewhat of a trend, where the extreme quartiles are more likely to have a negative slope.
 In category 1, (price-MA) is very negative. A negative slope means edge is positive, indicating a price much lower than the moving average leads to a future increase in price.
-In category 8, (price-MA) is very positive. A negative slope means, edge is negative, indicating a price much higher than the moving average leads to a future decrease in price.
+In category 8, (price-MA) is very positive. A negative slope means edge is negative, indicating a price much higher than the moving average leads to a future decrease in price.
 Thus we observe that a negative slope in category 1 and 8 makes sense and it indicates mean-reversion.
 A positive slope means that a positive value of (price-MA) leads to a future increase in price and vice verse for negative values. This is hence momentum and can be expected for smaller values of (price-MA). We have thus identified a pattern in the trading data.
+
+To be continued.
