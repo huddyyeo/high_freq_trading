@@ -4,7 +4,7 @@ In this project, I analyse high frequency trading data. I am grateful for all th
 
 High frequency trading refers to trading in short time periods and using algorithmic strategies to capture alpha. Unfortunately, these alphas decay extremely quickly due to overcrowding and seeking new methods of capturing trends is always necessary. 
 
-The data I have used is unfortunately private and confidential and cannot be uploaded onto this platform.
+The data I have used is unfortunately confidential and cannot be shared here.
 It consists of the following columns:
 ['date', 'ReceiveTime', 'Symbol', 'Type', 'PreSettlePrice',
        'PreClosePrice', 'PreOpenInterest', 'OpenPrice', 'HighestPrice',
@@ -18,7 +18,27 @@ It consists of the following columns:
        'CalendarDate', 'Category', 'InternalTime', 'TradingDate',
        'BidWAvgPrice', 'AskWAvgPrice']
 
-In the first step, we calculate the smart price and future smart price of every row. The smart price consists of (BidPrice1 x AskVol1 + AskPrice1 x BidVol1)/(AskVol1+BidVol1) and future smart price refers to the smart price 30 seconds from the current price. Edge is then calculated (future smart price - current smart price)
+In the first step, we calculate the smart price and future smart price of every row. The smart price consists of (BidPrice1 x AskVol1 + AskPrice1 x BidVol1)/(AskVol1+BidVol1).
+Note that limit up events occur, which result in the dataset having a 0 ask price. The smart-price calculation function is as such:
+
+```
+def calc_smart_price(dataset):
+    data=dataset[:]
+    
+    #to combat the limit up event, where price is set to 0. 
+    rows=(data.loc[:,'BidPrice1']==0) #count rows of bid price equal 0
+    if (np.any(rows)): #if there is such a row
+        data.at[rows,'BidPrice1']=data.loc[rows,'AskPrice1'] #for that row, assign ask price to it
+    rows=(data.loc[:,'AskPrice1']==0) #do the same for ask price
+    if (np.any(rows)):
+        data.at[rows,'AskPrice1']=data.loc[rows,'BidPrice1'] 
+        
+    data['smart_price']=data.loc[:,'BidPrice1']*data.loc[:,'AskVol1']+data.loc[:,'AskPrice1']*data.loc[:,'BidVol1']
+    data.at[:,'smart_price']=data.loc[:,'smart_price']/(data.loc[:,['BidVol1','AskVol1']].sum(axis=1))  
+    return data
+```
+
+Future smart price refers to the smart price 30 seconds from the current price. Edge is then calculated (future smart price - current smart price)
 The simple moving average is then calculated of the current smart price. Since the data is extremely large(>1gb), an efficient way to calculate SMA is necessary. 
 
 ```
@@ -66,30 +86,12 @@ Category:
 
 We then run linear regressions within these 8 categories of edge against (price-SMA). We would expect mean reversion to occur in the extreme quartiles. 
 
-Note that limit up events occur, which result in the dataset having a 0 ask price. The smart-price calculation function is updated as such:
-
-```
-def calc_smart_price(dataset):
-    data=dataset[:]
-    
-    #to combat the limit up event, where price is set to 0. 
-    rows=(data.loc[:,'BidPrice1']==0) #count rows of bid price equal 0
-    if (np.any(rows)): #if there is such a row
-        data.at[rows,'BidPrice1']=data.loc[rows,'AskPrice1'] #for that row, assign ask price to it
-    rows=(data.loc[:,'AskPrice1']==0) #do the same for ask price
-    if (np.any(rows)):
-        data.at[rows,'AskPrice1']=data.loc[rows,'BidPrice1'] 
-        
-    data['smart_price']=data.loc[:,'BidPrice1']*data.loc[:,'AskVol1']+data.loc[:,'AskPrice1']*data.loc[:,'BidVol1']
-    data.at[:,'smart_price']=data.loc[:,'smart_price']/(data.loc[:,['BidVol1','AskVol1']].sum(axis=1))  
-    return data
-```
 
 The data is returned in the following format
 
-| Date        | category_1_slope |
-| ------------| ---------------- |
-| 2019.01.30  | -0.09            |
+| Date        | category_1_slope |category_2_slope|category_3_slope|category_4_slope|
+| ------------| ---------------- |----------------|----------------|----------------|
+| 2019.01.30  | -0.09            | xxx            | xxx            | xxx            |
 
 with all 8 quartiles and other dates. It is interpreted as: for the 20 day period ending in 2019.01.30, the data points of 2019.01.30 that have been allocated into category 1 have been regressed and have a slope of -0.09. The p-values of all the rows are small due to large number of observations.
 
@@ -110,6 +112,23 @@ We see somewhat of a trend, where the extreme quartiles are more likely to have 
 In category 1, (price-MA) is very negative. A negative slope means edge is positive, indicating a price much lower than the moving average leads to a future increase in price.
 In category 8, (price-MA) is very positive. A negative slope means edge is negative, indicating a price much higher than the moving average leads to a future decrease in price.
 Thus we observe that a negative slope in category 1 and 8 makes sense and it indicates mean-reversion.
-A positive slope means that a positive value of (price-MA) leads to a future increase in price and vice verse for negative values. This is hence momentum and can be expected for smaller values of (price-MA). We have thus identified a pattern in the trading data.
+A positive slope means that a positive value of (price-MA) leads to a future increase in price and vice verse for negative values. This is hence momentum and can be expected for smaller values of (price-MA). We have successfully identified a pattern in the trading data. 
+code: 1day_8split_MA_regression.ipynb
+
+We now look at the effect of volume. We theorise that volume affects how (price-SMA) affects edge. We split volume into 6 categories based on the 5 percentiles (10,25,50,75,90) thresholds calculated from the past 20 days' volumes. 25, 50 and 75 was originally tested, but the 25% percentile proved too high and did not accurately capture the effect of very low volumes.
+Similarly, we split the rows into 6 categories and regress (price-SMA) and edge.
+
+We obtain the follow result:
+| Category | Percentage days positive| Mean slope | Std dev of slope |
+| -------- | ----------------------- | ---------- | ---------------- |
+| 1        |    0.515625             |  0.0354863 |  0.2617837       |
+| 2        |    0.687500             |  0.0235138 |  0.0772954       |
+| 3        |    0.531250             |  0.0206701 |  0.0509659       |
+| 4        |    0.562500             |  0.0137058 |  0.0622627       |
+| 5        |    0.406250             | -0.0098534 |  0.0591091       |
+| 6        |    0.390625             | -0.0485320 |  0.1117760       |
+
+The results make sense. The result say that a low volume in Category 1 does not conclusively tell us whether momentum or mean reversion is occurring. Conversely, a very high volume shows that mean reversion is occurring.
+code: 1day_Volume_6split_MA_regression.ipynb
 
 To be continued.
