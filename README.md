@@ -119,6 +119,7 @@ We now look at the effect of volume. We theorise that volume affects how (price-
 Similarly, we split the rows into 6 categories and regress (price-SMA) and edge.
 
 We obtain the follow result:
+
 | Category | Percentage days positive| Mean slope | Std dev of slope |
 | -------- | ----------------------- | ---------- | ---------------- |
 | 1        |    0.515625             |  0.0354863 |  0.2617837       |
