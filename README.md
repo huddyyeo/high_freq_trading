@@ -1,4 +1,6 @@
-# high_freq_trading
+## high_freq_trading 
+
+# work in progress
 
 In this project, I analyse high frequency trading data. I am grateful for all the help I have received from everyon who has taught and guided me on this subject.
 
@@ -65,7 +67,40 @@ def calc_sma_fast(dataset,duration=1):
 This method returns in 0.05s for 5000 rows, the fastest out of several methods I have tested.
 The added column is (smart_price-SMA). The function is then run for 1,5,15,30 minute moving averages.
 
-We then (linearly) regress this value against edge for a 5 day rolling window. We also run regressions against all 4 moving average times. One such result can be found at:
+We then (linearly) regress this value against edge for a 5 day rolling window. Note that we do not fit the intercept. The following code is used
+```
+class LinearRegression(linear_model.LinearRegression):
+    """
+    LinearRegression class after sklearn's, but calculate t-statistics
+    and p-values for model coefficients (betas).
+    Additional attributes available after .fit()
+    are `t` and `p` which are of the shape (y.shape[1], X.shape[1])
+    which is (n_features, n_coefs)
+    This class sets the intercept to 0 by default, since usually we include it
+    in X.
+    """
+    def __init__(self, fit_intercept=True, normalize=False, copy_X=True,
+                     n_jobs=1):
+            self.fit_intercept = fit_intercept
+            self.normalize = normalize
+            self.copy_X = copy_X
+            self.n_jobs = n_jobs
+    def fit(self, X, y, n_jobs=1):
+        self = super(LinearRegression, self).fit(X, y, n_jobs)
+
+        sse = np.sum((self.predict(X) - y) ** 2, axis=0) / float(X.shape[0] - X.shape[1])
+        se = np.array([
+            np.sqrt(np.diagonal(sse[i] * np.linalg.inv(np.dot(X.T, X))))
+                                                    for i in range(sse.shape[0])
+                    ])
+
+        self.t = self.coef_ / se
+        self.p = 2 * (1 - stats.t.cdf(np.abs(self.t), y.shape[0] - X.shape[1]))
+        return self  
+```
+This builds on the sklearn linear_model class and adds the functionality of retrieving p values.
+
+We also run regressions against all 4 moving average times. One such result can be found at:
 https://github.com/huddyyeo/high_freq_trading/blob/master/result_5day_15minute_ma.csv
 We interpret the data as, for the 5 day period ending in 2019.01.08, the regression of edge against against (smart price - SMA) returns a slope of 0.0157977748172754 and p-value of the coefficient of 2.0954766362309706e-93.
 Note that the p-values are all extremely small due to the sheer size of the dataset. The slope is also inconsistent, flipping between positive and negative, meaning we cannot consistently tell how being on either side of the SMA affects the edge and future price. 
@@ -131,5 +166,7 @@ We obtain the follow result:
 
 The results make sense. The result say that a low volume in Category 1 does not conclusively tell us whether momentum or mean reversion is occurring. Conversely, a very high volume shows that mean reversion is occurring.
 code: 1day_Volume_6split_MA_regression.ipynb
+
+Combining both signals, we split the data into 6 categories based on volume and 8 categories based on SMA and regress the 6x8=42 categories.
 
 To be continued.
