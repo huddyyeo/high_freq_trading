@@ -173,7 +173,7 @@ However on looking through scatterplots of the data, we realised that there exis
 
 One such result is:
 
-### Mean across all days per quartile
+### Mean edge across all days per quartile
 
 |Category|Q1     |Q2      |Q3      |Q4      |
 |--------|-------|--------|--------|--------|
@@ -198,7 +198,7 @@ One such result is:
 |19      |0.146  |  0.029 |  0.305 |  0.107 |
 |20      |0.06   |   0.068| -0.155 | -0.583 |
  
-Each row refers to a category, 1-20 from top to bottom, and each column is a quartile, Q1-4 left to right. We see that the first 10 rows are more likely to be negative, which means momentum, since category 1-10 indicates negative (price-SMA). In the more extreme categories such as the first row, we see that the value is positive. This indicates mean-reversion and it occurs when price is extremely below moving average (bottom 10%). Conversely, we see the opposite in the bottom half of the matrix. Highly positive categories lead to negative values and hence mean reversion. Mean reversion is especially pertinent in quartile 4, or the right-most column. This is expected: when volume is high and price is on the extreme on either side of SMA, we would expect a mean reversion. 
+Each row refers to a category, 1-20 from top to bottom, and each column is a quartile, Q1-4 left to right. We see that the first 10 rows of mean edge are more likely to be negative, which means momentum, since category 1-10 indicates negative (price-SMA). In the more extreme categories such as the first row, we see that the mean edge is positive. This indicates mean-reversion and it occurs when price is extremely below moving average (bottom 10%). Conversely, we see the opposite in the bottom half of the matrix. Highly positive categories lead to negative mean edge and hence mean reversion. Mean reversion is especially pertinent in quartile 4, or the right-most column. This is expected: when volume is high and price is on the extreme on either side of SMA, we would expect a mean reversion. 
  
 code: auto_runall_10split_cat1_split_6_mean.ipynb
 The code also contains functions to run the analysis on other products in other folders.
