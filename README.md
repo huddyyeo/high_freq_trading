@@ -2,7 +2,7 @@
 
 # work in progress
 
-In this project, I analyse high frequency trading data. I am grateful for all the help I have received from everyon who has taught and guided me on this subject.
+In this project, I analyse high frequency trading data. I am grateful for all the help I have received on this subject.
 
 High frequency trading refers to trading in short time periods and using algorithmic strategies to capture alpha. Unfortunately, these alphas decay extremely quickly due to overcrowding and seeking new methods of capturing trends is always necessary. 
 
@@ -67,7 +67,7 @@ def calc_sma_fast(dataset,duration=1):
 This method returns in 0.05s for 5000 rows, the fastest out of several methods I have tested.
 The added column is (smart_price-SMA). The function is then run for 1,5,15,30 minute moving averages.
 
-We then (linearly) regress this value against edge for a 5 day rolling window. Note that we do not fit the intercept. The following code is used
+We then (linearly) regress this value against edge for a 5 day rolling window. Note that we do not fit the intercept (force line through (0,0)). The following code is used
 ```
 class LinearRegression(linear_model.LinearRegression):
     """
@@ -167,6 +167,37 @@ We obtain the follow result:
 The results make sense. The result say that a low volume in Category 1 does not conclusively tell us whether momentum or mean reversion is occurring. Conversely, a very high volume shows that mean reversion is occurring.
 code: 1day_Volume_6split_MA_regression.ipynb
 
-Combining both signals, we split the data into 6 categories based on volume and 8 categories based on SMA and regress the 6x8=42 categories.
+Combining both signals, we split the data into 6 categories based on volume and 8 categories based on SMA and regress the 6x8=42 categories. code: 1day_Q1,8_SMA_vol6split.ipynb
+
+However on looking through scatterplots of the data, we realised that there exist multiple relationships within (price-SMA) and edge. It would make better sense to first evaluate them without regressions. First we split the data into 20 categories (10-90% percentile of positive and negative, 10x2) based on past 20 days of (price-SMA). Then within each category from the past 20 days, we further split into 4 quartiles, based on cumulative volume in the past 1 minute. Within each quartile, we calculate the mean of the edge for all days.
+
+One such result is:
+
+mean across all days per quartile
+ [[ 0.14   0.     0.174  0.721]
+ [ 0.065 -0.117  0.047 -0.073]
+ [ 0.039  0.103 -0.05  -0.116]
+ [ 0.013 -0.122 -0.038 -0.026]
+ [-0.152 -0.255 -0.242 -0.2  ]
+ [-0.312 -0.183 -0.233 -0.156]
+ [-0.228 -0.203 -0.222  0.002]
+ [-0.267 -0.245 -0.125 -0.036]
+ [-0.196 -0.157 -0.133 -0.044]
+ [-0.165 -0.104 -0.018 -0.009]
+ [-0.017 -0.016 -0.089 -0.109]
+ [ 0.072  0.143  0.079  0.034]
+ [-0.037  0.168  0.175 -0.013]
+ [ 0.102  0.09   0.077 -0.03 ]
+ [ 0.09   0.346  0.016  0.03 ]
+ [ 0.185  0.23   0.111  0.083]
+ [ 0.165  0.216  0.298  0.023]
+ [ 0.128  0.294  0.169  0.116]
+ [ 0.146  0.029  0.305  0.107]
+ [ 0.06   0.068 -0.155 -0.583]]
+ 
+ Each row refers to a category, 1-20 from top to bottom, and each column is a quartile, Q1-4 left to right. We see that the first 10 rows are more likely to be negative, which means momentum, since category 1-10 indicates negative (price-SMA). In the more extreme categories such as the first row, we see that the value is positive. This indicates mean-reversion and it occurs when price is extremely below moving average (bottom 10%). Conversely, we see the opposite in the bottom half of the matrix. Highly positive categories lead to negative values and hence mean reversion. Mean reversion is especially pertinent in quartile 4, or the right-most column. This is expected: when volume is high and price is on the extreme on either side of SMA, we would expect a mean reversion. 
+ 
+code: auto_runall_10split_cat1_split_6_mean.ipynb
+The code also contains functions to run the analysis on other products in other folders.
 
 To be continued.
