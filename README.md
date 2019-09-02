@@ -174,6 +174,7 @@ However on looking through scatterplots of the data, we realised that there exis
 One such result is:
 
 mean across all days per quartile
+
 |Q1     |Q2      |Q3      |Q4      |
 |-------|--------|--------|--------|
 |0.14   |   0.   |  0.174 |  0.721 |
