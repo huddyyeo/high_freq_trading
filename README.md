@@ -174,26 +174,28 @@ However on looking through scatterplots of the data, we realised that there exis
 One such result is:
 
 mean across all days per quartile
- [[ 0.14   0.     0.174  0.721]
- [ 0.065 -0.117  0.047 -0.073]
- [ 0.039  0.103 -0.05  -0.116]
- [ 0.013 -0.122 -0.038 -0.026]
- [-0.152 -0.255 -0.242 -0.2  ]
- [-0.312 -0.183 -0.233 -0.156]
- [-0.228 -0.203 -0.222  0.002]
- [-0.267 -0.245 -0.125 -0.036]
- [-0.196 -0.157 -0.133 -0.044]
- [-0.165 -0.104 -0.018 -0.009]
- [-0.017 -0.016 -0.089 -0.109]
- [ 0.072  0.143  0.079  0.034]
- [-0.037  0.168  0.175 -0.013]
- [ 0.102  0.09   0.077 -0.03 ]
- [ 0.09   0.346  0.016  0.03 ]
- [ 0.185  0.23   0.111  0.083]
- [ 0.165  0.216  0.298  0.023]
- [ 0.128  0.294  0.169  0.116]
- [ 0.146  0.029  0.305  0.107]
- [ 0.06   0.068 -0.155 -0.583]]
+|Q1     |Q2      |Q3      |Q4      |
+|-------|--------|--------|--------|
+|0.14   |   0.   |  0.174 |  0.721 |
+|0.065  | -0.117 |  0.047 | -0.073 |
+|0.039  |  0.103 | -0.05  |  -0.116|
+|0.013  | -0.122 | -0.038 | -0.026 |
+|-0.152 | -0.255 | -0.242 | -0.2   |
+|-0.312 | -0.183 | -0.233 | -0.156 |
+| -0.228| -0.203 | -0.222 |  0.002 |
+| -0.267| -0.245 | -0.125 | -0.036 |
+| -0.196| -0.157 | -0.133 | -0.044 |
+| -0.165| -0.104 | -0.018 | -0.009 |
+| -0.017| -0.016 | -0.089 | -0.109 |
+|0.072  |  0.143 |  0.079 |  0.034 |
+|-0.037 |  0.168 |  0.175 | -0.013 |
+|0.102  |  0.09  |   0.077| -0.03  |
+|0.09   | 0.346  |  0.016 |  0.03  |
+|0.185  |  0.23  |   0.111|  0.083 |
+|0.165  |  0.216 |  0.298 |  0.023 |
+|0.128  |  0.294 |  0.169 |  0.116 |
+|0.146  |  0.029 |  0.305 |  0.107 |
+|0.06   |   0.068| -0.155 | -0.583 |
  
  Each row refers to a category, 1-20 from top to bottom, and each column is a quartile, Q1-4 left to right. We see that the first 10 rows are more likely to be negative, which means momentum, since category 1-10 indicates negative (price-SMA). In the more extreme categories such as the first row, we see that the value is positive. This indicates mean-reversion and it occurs when price is extremely below moving average (bottom 10%). Conversely, we see the opposite in the bottom half of the matrix. Highly positive categories lead to negative values and hence mean reversion. Mean reversion is especially pertinent in quartile 4, or the right-most column. This is expected: when volume is high and price is on the extreme on either side of SMA, we would expect a mean reversion. 
  
