@@ -173,7 +173,7 @@ However on looking through scatterplots of the data, we realised that there exis
 
 One such result is:
 
-###Mean across all days per quartile
+### Mean across all days per quartile
 
 |Category|Q1     |Q2      |Q3      |Q4      |
 |--------|-------|--------|--------|--------|
